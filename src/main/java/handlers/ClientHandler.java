@@ -43,10 +43,10 @@ public class ClientHandler implements Runnable {
                         vars.put(argName, argVal);
                         output.write("+OK\r\n".getBytes());
 
-                        if (command.length > 8){
+                        if (command.length > 8) {
                             String ex = command[8];
-                            new Thread( () -> {
-                                if (ex.equalsIgnoreCase("px")){
+                            new Thread(() -> {
+                                if (ex.equalsIgnoreCase("px")) {
                                     try {
                                         Thread.sleep(Long.parseLong(command[10]));
                                         vars.remove(argName);
@@ -54,7 +54,7 @@ public class ClientHandler implements Runnable {
                                         throw new RuntimeException(e);
                                     }
                                 }
-                            } ).start();
+                            }).start();
                         }
                     }
                     case "get" -> {
@@ -64,6 +64,9 @@ public class ClientHandler implements Runnable {
                         }
                         String argVal = vars.get(argName);
                         output.write(String.format("$%s\r\n%s\r\n", argVal.length(), argVal).getBytes());
+                    }
+                    case "rpush" -> {
+                        output.write(":1\r\n".getBytes());
                     }
                 }
 
