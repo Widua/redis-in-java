@@ -4,13 +4,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ClientHandler implements Runnable {
 
     private final Socket clientSocket;
     private Map<String, String> vars = new HashMap<>();
+    private Map<String, List<String>> lists = new HashMap<>();
 
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -66,7 +69,18 @@ public class ClientHandler implements Runnable {
                         output.write(String.format("$%s\r\n%s\r\n", argVal.length(), argVal).getBytes());
                     }
                     case "rpush" -> {
-                        output.write(":1\r\n".getBytes());
+                        String listName = command[4];
+                        String element = command[6];
+
+                        if (lists.containsKey(listName)){
+                            List<String> list = new ArrayList<>(lists.get(listName));
+                            list.add(element);
+                            lists.put(listName,list);
+                        } else {
+                            lists.put(listName,List.of(element));
+                        }
+
+                        output.write(String.format(":%s\r\n",lists.get(listName).size()).getBytes());
                     }
                 }
 
